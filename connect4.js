@@ -8,45 +8,118 @@
 
 class Game {
   constructor(height, width) {
-    this.HEIGHT = height;
-    this.WIDTH = width;
+    this.height = height;
+    this.width = width;
     this.board = [];
     this.currPlayer = 1;
+    this.makeBoard();
+    this.makeHtmlBoard();
   }
+
+
+  /** makeBoard: create in-JS board structure:
+   *   board = array of rows, each row is array of cells  (board[y][x])
+   */
+
   makeBoard() {
-    for (let y = 0; y < this.HEIGHT; y++) {
-      this.board.push(Array.from({ length: this.WIDTH }));
+    for (let y = 0; y < this.height; y++) {
+      this.board.push(Array.from({ length: this.width }));
     }
+    console.log("height",this.height, "width",this.width);
   }
+
+  /** makeHtmlBoard: make HTML table and row of column tops. */
 
   makeHtmlBoard() {
     const board = document.getElementById('board');
+    board.innerHTML = "";
 
     // make column tops (clickable area for adding a piece to that column)
     const top = document.createElement('tr');
     top.setAttribute('id', 'column-top');
-    top.addEventListener('click', handleClick);
+    top.addEventListener('click', handleClick.bind(top));
 
-    for (let x = 0; x < this.WIDTH; x++) {
+    for (let x = 0; x < this.width; x++) {
       const headCell = document.createElement('td');
       headCell.setAttribute('id', x);
       top.append(headCell);
     }
 
-    this.board.append(top);
+    board.append(top);
 
     // make main part of board
-    for (let y = 0; y < this.HEIGHT; y++) {
+    for (let y = 0; y < this.height; y++) {
       const row = document.createElement('tr');
 
-      for (let x = 0; x < this.WIDTH; x++) {
+      for (let x = 0; x < this.width; x++) {
         const cell = document.createElement('td');
         cell.setAttribute('id', `c-${y}-${x}`);
         row.append(cell);
       }
 
-      this.board.append(row);
+    board.append(row);
+    console.log("row " + y + " appended");
     }
+    console.log("makeHtmlBoard finished");
+  }
+
+  /** findSpotForCol: given column x, return top empty y (null if filled) */
+
+  findSpotForCol(x) {
+    for (let y = this.height - 1; y >= 0; y--) {
+      if (!this.board[y][x]) {
+        return y;
+      }
+    }
+    return null;
+  }
+
+  /** placeInTable: update DOM to place piece into HTML table of board */
+
+  placeInTable(y, x) {
+    const piece = document.createElement('div');
+    piece.classList.add('piece');
+    piece.classList.add(`p${this.currPlayer}`);
+    piece.style.top = -50 * (y + 2);
+
+    const spot = document.getElementById(`$c-${y}-${x}`);
+    spot.append(piece);
+  }
+
+  /** endGame: announce game end */
+
+  endGame(msg) {
+    alert(msg);
+  }
+
+  /** placeInTable: update DOM to place piece into HTML table of board */
+
+  handleClick(evt) {
+    // get x from ID of clicked cell
+    const x = +evt.target.id;
+
+    // get next spot in column (if none, ignore click)
+    const y = findSpotForCol(x);
+    if (y === null) {
+      return;
+    }
+
+    // place piece in board and add to HTML table
+    board[y][x] = currPlayer;
+    placeInTable(y, x);
+
+    // check for win
+    if (checkForWin()) {
+      return endGame(`Player ${currPlayer} won!`);
+    }
+
+    // check for tie
+    if (board.every(row => row.every(cell => cell))) {
+      return endGame('Tie!');
+    }
+
+    // switch players
+    currPlayer = currPlayer === 1 ? 2 : 1;
   }
 }
 
@@ -104,62 +177,62 @@ class Game {
 
 /** findSpotForCol: given column x, return top empty y (null if filled) */
 
-function findSpotForCol(x) {
-  for (let y = HEIGHT - 1; y >= 0; y--) {
-    if (!board[y][x]) {
-      return y;
-    }
-  }
-  return null;
-}
+// function findSpotForCol(x) {
+//   for (let y = this.height - 1; y >= 0; y--) {
+//     if (!this.board[y][x]) {
+//       return y;
+//     }
+//   }
+//   return null;
+// }
 
 /** placeInTable: update DOM to place piece into HTML table of board */
 
-function placeInTable(y, x) {
-  const piece = document.createElement('div');
-  piece.classList.add('piece');
-  piece.classList.add(`p${currPlayer}`);
-  piece.style.top = -50 * (y + 2);
+// function placeInTable(y, x) {
+//   const piece = document.createElement('div');
+//   piece.classList.add('piece');
+//   piece.classList.add(`p${currPlayer}`);
+//   piece.style.top = -50 * (y + 2);
 
-  const spot = document.getElementById(`$c-${y}-${x}`);
-  spot.append(piece);
-}
+//   const spot = document.getElementById(`$c-${y}-${x}`);
+//   spot.append(piece);
+// }
 
 /** endGame: announce game end */
 
-function endGame(msg) {
-  alert(msg);
-}
+// function endGame(msg) {
+//   alert(msg);
+// }
 
 /** handleClick: handle click of column top to play piece */
 
-function handleClick(evt) {
-  // get x from ID of clicked cell
-  const x = +evt.target.id;
+// function handleClick(evt) {
+//   // get x from ID of clicked cell
+//   const x = +evt.target.id;
 
-  // get next spot in column (if none, ignore click)
-  const y = findSpotForCol(x);
-  if (y === null) {
-    return;
-  }
+//   // get next spot in column (if none, ignore click)
+//   const y = findSpotForCol(x);
+//   if (y === null) {
+//     return;
+//   }
 
-  // place piece in board and add to HTML table
-  board[y][x] = currPlayer;
-  placeInTable(y, x);
+//   // place piece in board and add to HTML table
+//   board[y][x] = currPlayer;
+//   placeInTable(y, x);
 
-  // check for win
-  if (checkForWin()) {
-    return endGame(`Player ${currPlayer} won!`);
-  }
+//   // check for win
+//   if (checkForWin()) {
+//     return endGame(`Player ${currPlayer} won!`);
+//   }
 
-  // check for tie
-  if (board.every(row => row.every(cell => cell))) {
-    return endGame('Tie!');
-  }
+//   // check for tie
+//   if (board.every(row => row.every(cell => cell))) {
+//     return endGame('Tie!');
+//   }
 
-  // switch players
-  currPlayer = currPlayer === 1 ? 2 : 1;
-}
+//   // switch players
+//   currPlayer = currPlayer === 1 ? 2 : 1;
+// }
 
 /** checkForWin: check board cell-by-cell for "does a win start here?" */
 
@@ -196,5 +269,5 @@ function checkForWin() {
   }
 }
 
-makeBoard();
-makeHtmlBoard();
+// makeBoard();
+// makeHtmlBoard();
