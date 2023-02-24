@@ -1,3 +1,5 @@
+"use strict";
+
 /** Connect Four
  *
  * Player 1 and 2 alternate turns. On each turn, a piece is dropped down a
@@ -14,7 +16,6 @@ class Game {
     this.currPlayer = 1;
     this.makeBoard();
     this.makeHtmlBoard();
-
   }
 
 
@@ -61,6 +62,13 @@ class Game {
 
     board.append(row);
     }
+  }
+
+  /** Add an event listener to the start button element */
+
+  makeStartButton() {
+    const startButton = document.getElementById("start-button");
+    startButton.addEventListener('click', new Game());
   }
 
   /** findSpotForCol: given column x, return top empty y (null if filled) */
@@ -128,6 +136,7 @@ class Game {
   /** checkForWin: check board cell-by-cell for "does a win start here?" */
 
   checkForWin() {
+    //to use arrow notation: const _win = cells => cells.every...
     function _win(cells) {
       // Check four cells to see if they're all color of current player
       //  - cells: list of four (y, x) cells
@@ -162,9 +171,8 @@ class Game {
         }
       }
     }
+
 }
-
-
 
 
 
